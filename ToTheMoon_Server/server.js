@@ -325,75 +325,41 @@ const setupKorbitWebSocket = async () => {
         return res.status(400).json({ error: "condition은 'above' 또는 'below'이어야 합니다." });
     }
 
-    // 알림 추가
-    const newAlert = {
-        exchange: exchange.toLowerCase(),
+    priceAlerts.push({
+        exchange: exchange.toLowerCase(),  // 소문자로 변환
         coin,
         price: parseFloat(price),
         condition,
         fcmToken
-    };
+    });
 
-    priceAlerts.push(newAlert);
-    console.log(`✅ 알림 추가됨: ${JSON.stringify(newAlert)}`);
-    console.log(`📌 현재 등록된 알림 목록: ${JSON.stringify(priceAlerts)}`);
+    console.log(`알림 등록: ${exchange.toLowerCase()} ${coin} ${condition} ${price}원`);
 
     res.status(201).json({ message: "알림이 성공적으로 등록되었습니다." });
 });
 
-// 지정가 알림 삭제 요청 API
-app.delete("/alerts", (req, res) => {
-  const { exchange, coin, price, condition, fcmToken } = req.body;
-
-  if (!exchange || !coin || !price || !condition || !fcmToken) {
-      return res.status(400).json({ error: "필수 파라미터 누락" });
-  }
-
-  const initialLength = priceAlerts.length;
-
-  // 조건에 맞는 알림 제거
-  priceAlerts = priceAlerts.filter(alert =>
-      !(alert.exchange === exchange.toLowerCase() &&
-        alert.coin === coin &&
-        alert.price === parseFloat(price) &&
-        alert.condition === condition &&
-        alert.fcmToken === fcmToken)
-  );
-
-  if (priceAlerts.length === initialLength) {
-      return res.status(404).json({ error: "해당 알림을 찾을 수 없습니다." });
-  }
-
-  console.log(`🚀 알림 삭제됨: ${exchange} ${coin} ${condition} ${price}원`);
-  res.status(200).json({ message: "알림이 성공적으로 삭제되었습니다." });
-});
-
-// 특정 가격 도달 시 푸시 알림 전송 + 알림 삭제 개선
+// 특정 가격 도달 시 푸시 알림 전송
 const checkPriceAlerts = (exchange, coin, currentPrice) => {
   console.log(`${exchange} ${coin} 현재 가격: ${currentPrice}원`);
   console.log(`등록된 알림들:`, priceAlerts);
 
-  const remainingAlerts = [];
-
-  priceAlerts.forEach(alert => {
+  priceAlerts = priceAlerts.filter(alert => {
       if (
           alert.exchange === exchange &&
           alert.coin === coin &&
           ((alert.condition === "above" && currentPrice >= alert.price) ||
            (alert.condition === "below" && currentPrice <= alert.price))
       ) {
-          console.log(`🔥 푸시 알림 트리거됨! ${exchange} ${coin} ${currentPrice}원`);
+          console.log(`푸시 알림 트리거됨! ${exchange} ${coin} ${currentPrice}원`);
 
           sendPushNotification(
               alert.fcmToken,
               `📢 ${exchange.toUpperCase()} ${coin}이(가) ${alert.condition === "above" ? "이상" : "이하"} ${alert.price}원 도달!`
           );
-      } else {
-          remainingAlerts.push(alert);
+          return false; // 알림 보냈으므로 제거
       }
+      return true;
   });
-
-  priceAlerts = remainingAlerts; // 알림이 트리거된 항목만 제거
 };
 
 // Firebase 푸시 알림 발송 함수
