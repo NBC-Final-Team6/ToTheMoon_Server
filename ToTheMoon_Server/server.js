@@ -402,7 +402,7 @@ const sendPushNotification = async (token, message) => {
   }
 };
 
-sendPushNotification("eC2fgsyvjEFqga835CsxjJ:APA91bH6FnPO87W4W1RkXsVl4wGuixiAxr1IMethG100nHWU2SnHtUmVpboESfhX8fJftDmgfiNzteKukLewijHbPq2QPZdCXQsE_ZKrWFIocdRMgPpNm5Y", "푸시 알림 테스트 메시지");
+sendPushNotification("dm5yyUoxgEu9jriBFaCoHL:APA91bEnQ3gdirWjsMvCdcEo67Z3Al5JbMEB2-rjsUTz9swZlL5GM4hrINqb6C99OeexW39vnA2nttNn_inUbvEEGC2610cWT5PygUypR9Rw6Aq2EPvbno8", "푸시 알림 테스트 메시지");
 
 // 서버 실행
 app.listen(port, "0.0.0.0", () => {
