@@ -325,15 +325,18 @@ const setupKorbitWebSocket = async () => {
         return res.status(400).json({ error: "condition은 'above' 또는 'below'이어야 합니다." });
     }
 
-    priceAlerts.push({
-        exchange: exchange.toLowerCase(),  // 소문자로 변환
+    // 알림 추가
+    const newAlert = {
+        exchange: exchange.toLowerCase(),
         coin,
         price: parseFloat(price),
         condition,
         fcmToken
-    });
+    };
 
-    console.log(`알림 등록: ${exchange.toLowerCase()} ${coin} ${condition} ${price}원`);
+    priceAlerts.push(newAlert);
+    console.log(`✅ 알림 추가됨: ${JSON.stringify(newAlert)}`);
+    console.log(`📌 현재 등록된 알림 목록: ${JSON.stringify(priceAlerts)}`);
 
     res.status(201).json({ message: "알림이 성공적으로 등록되었습니다." });
 });
